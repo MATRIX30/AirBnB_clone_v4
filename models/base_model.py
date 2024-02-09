@@ -49,13 +49,8 @@ class BaseModel:
 
     def __str__(self):
         """String representation of the BaseModel class"""
-        obj_dict = self.__dict__.copy()
-
-        if obj_dict.get("_sa_instance_state") is not None:
-            del obj_dict["_sa_instance_state"]
-
-        return "[{:s}] ({:s}) {}".format(self.__class__.__name__,
-                                         self.id, obj_dict)
+        return "[{:s}] ({:s}) {}".format(self.__class__.__name__, self.id,
+                                         self.__dict__)
 
     def save(self):
         """updates the attribute 'updated_at' with the current datetime"""
@@ -63,7 +58,7 @@ class BaseModel:
         models.storage.new(self)
         models.storage.save()
 
-    def to_dict(self, storage_type="db"):
+    def to_dict(self, save_fs=None):
         """returns a dictionary containing all keys/values of the instance"""
         new_dict = self.__dict__.copy()
         if "created_at" in new_dict:
@@ -73,9 +68,9 @@ class BaseModel:
         new_dict["__class__"] = self.__class__.__name__
         if "_sa_instance_state" in new_dict:
             del new_dict["_sa_instance_state"]
-        if models.storage_t == "db" and "password" in new_dict:
-            # new_dict.pop("password")
-            del new_dict["password"]
+        if save_fs is None:
+            if "password" in new_dict:
+                del new_dict["password"]
         return new_dict
 
     def delete(self):

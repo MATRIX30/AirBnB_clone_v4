@@ -33,9 +33,11 @@ class Place(BaseModel, Base):
         price_by_night = Column(Integer, nullable=False, default=0)
         latitude = Column(Float, nullable=True)
         longitude = Column(Float, nullable=True)
-        reviews = relationship("Review", backref="place")
-        amenities = relationship("Amenity", secondary="place_amenity",
-                                 backref="place_amenities",
+        reviews = relationship("Review",
+                               backref="place",
+                               cascade="all, delete, delete-orphan")
+        amenities = relationship("Amenity",
+                                 secondary=place_amenity,
                                  viewonly=False)
     else:
         city_id = ""
@@ -70,7 +72,9 @@ class Place(BaseModel, Base):
         def amenities(self):
             """getter attribute returns the list of Amenity instances"""
             from models.amenity import Amenity
+            amenity_list = []
             all_amenities = models.storage.all(Amenity)
-            amenity_list = [all_amenities["Amenity.{}".format(id)]
-                            for id in self.amenity_ids]
+            for amenity in all_amenities.values():
+                if amenity.place_id == self.id:
+                    amenity_list.append(amenity)
             return amenity_list

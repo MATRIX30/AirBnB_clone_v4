@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-""" manages class User"""
+""" holds class User"""
+
 import models
 from models.base_model import BaseModel, Base
 from os import getenv
@@ -27,10 +28,10 @@ class User(BaseModel, Base):
 
     def __init__(self, *args, **kwargs):
         """initializes user"""
-        if args:
-            args[1] = md5(args[1].encode('utf8')).hexdigest()
-        if kwargs:
-            passwd = kwargs.pop('password', "")
-            encrypt_passwd = md5(passwd.encode('utf8')).hexdigest()
-            kwargs['password'] = encrypt_passwd
         super().__init__(*args, **kwargs)
+
+    def __setattr__(self, name, value):
+        """sets a password with md5 encryption"""
+        if name == "password":
+            value = md5(value.encode()).hexdigest()
+        super().__setattr__(name, value)

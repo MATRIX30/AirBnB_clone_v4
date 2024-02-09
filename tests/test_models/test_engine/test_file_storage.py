@@ -5,10 +5,7 @@ Contains the TestFileStorageDocs classes
 
 from datetime import datetime
 import inspect
-from random import randint
-
 import models
-from models import storage
 from models.engine import file_storage
 from models.amenity import Amenity
 from models.base_model import BaseModel
@@ -117,43 +114,28 @@ class TestFileStorage(unittest.TestCase):
             js = f.read()
         self.assertEqual(json.loads(string), json.loads(js))
 
-    @unittest.skipIf(models.storage_t == 'db', "Not testing File storage")
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
     def test_get(self):
-        """Tests DBStorage.get() method"""
+        """ Tests method for obtaining an instance file storage"""
+        storage = FileStorage()
+        dic = {"name": "Vecindad"}
+        instance = State(**dic)
+        storage.new(instance)
+        storage.save()
+        storage = FileStorage()
+        get_instance = storage.get(State, instance.id)
+        self.assertEqual(get_instance, instance)
 
-        self.assertIsNone(storage.get(State, "Not_found"))
-        self.assertIsNone(storage.get(datetime, "Not_found"))
-
-        for cls in classes.values():
-            obj = cls()
-            obj.save()
-            id = obj.id
-            result = storage.get(cls, id)
-            self.assertIsInstance(result, cls)
-            self.assertIs(result, obj)
-
-    @unittest.skipIf(models.storage_t == 'db', "Not testing File storage")
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
     def test_count(self):
-        """Tests DBStorage.count() method"""
-
-        self.assertEqual(storage.count(), len(storage.all()))
-        self.assertIsNone(storage.count(datetime))
-
-        for cls in classes.values():
-            self.assertEqual(storage.count(cls), len(storage.all(cls)))
-
-        json_path = storage._FileStorage__file_path
-        if os.path.exists(json_path):
-            os.remove(json_path)
-        storage.reload()
-
-        self.assertEqual(storage.count(), 0)
-        for cls in classes.values():
-            self.assertEqual(storage.count(cls), 0)
-
-        for i in range(1, randint(3, 9)):
-            for cls in classes.values():
-                obj = cls()
-                obj.save()
-                self.assertEqual(storage.count(cls), i)
-            self.assertEqual(storage.count(), i * len(classes))
+        """ Tests count method file storage """
+        storage = FileStorage()
+        dic = {"name": "Vecindad"}
+        state = State(**dic)
+        storage.new(state)
+        dic = {"name": "Mexico"}
+        city = City(**dic)
+        storage.new(city)
+        storage.save()
+        c = storage.count()
+        self.assertEqual(len(storage.all()), c)

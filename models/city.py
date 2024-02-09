@@ -6,7 +6,6 @@ from os import getenv
 import sqlalchemy
 from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
-from models.place import Place
 
 
 class City(BaseModel, Base):
@@ -15,7 +14,9 @@ class City(BaseModel, Base):
         __tablename__ = 'cities'
         state_id = Column(String(60), ForeignKey('states.id'), nullable=False)
         name = Column(String(128), nullable=False)
-        places = relationship("Place", backref="cities")
+        places = relationship("Place",
+                              backref="cities",
+                              cascade="all, delete, delete-orphan")
     else:
         state_id = ""
         name = ""
@@ -23,14 +24,3 @@ class City(BaseModel, Base):
     def __init__(self, *args, **kwargs):
         """initializes city"""
         super().__init__(*args, **kwargs)
-
-    if models.storage_t != "db":
-        @property
-        def places(self):
-            """getter for list of Place instances related to the city"""
-            places = []
-            all_places = models.storage.all(Place)
-            for place in all_places.values():
-                if place.city_id == self.id:
-                    places.append(place)
-            return places

@@ -79,11 +79,12 @@ class TestAmenity(unittest.TestCase):
     def test_to_dict_creates_dict(self):
         """test to_dict method creates a dictionary with proper attrs"""
         am = Amenity()
+        # print(am.__dict__)
         new_d = am.to_dict()
         self.assertEqual(type(new_d), dict)
         self.assertFalse("_sa_instance_state" in new_d)
         for attr in am.__dict__:
-            if attr != "_sa_instance_state":
+            if attr is not "_sa_instance_state":
                 self.assertTrue(attr in new_d)
         self.assertTrue("__class__" in new_d)
 
@@ -101,10 +102,5 @@ class TestAmenity(unittest.TestCase):
     def test_str(self):
         """test that the str method has the correct output"""
         amenity = Amenity()
-        _dict = amenity.__dict__.copy()
-
-        if _dict.get("_sa_instance_state") is not None:
-            del _dict["_sa_instance_state"]
-
-        string = "[Amenity] ({}) {}".format(amenity.id, _dict)
+        string = "[Amenity] ({}) {}".format(amenity.id, amenity.__dict__)
         self.assertEqual(string, str(amenity))
