@@ -8,7 +8,7 @@ $('input[type="checkbox"]').change(function () {
     amenityInfo[name] = id;
 
   } else {
-    delete amenity_info[name];
+    delete amenityInfo[name];
 
   }
 
