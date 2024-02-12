@@ -1,7 +1,8 @@
 
 const amenityInfo = {};
-
-$('input[type="checkbox"]').change(function () {
+const stateInfos = {};
+const cityInfos = {};
+$('.amenities input[type="checkbox"]').change(function () {
   const id = $(this).attr('data-id');
   const name = $(this).attr('data-name');
 
@@ -68,17 +69,26 @@ $.ajax(
 
 $('button').click(function(){
   const amenitiesID = [];
+  const citiesID = [];
+  const statesID = [];
   for (const key in amenityInfo){
     
     amenitiesID.push(amenityInfo[key]);
+  }
+  for (const key in cityInfos){
+    
+    citiesID.push(cityInfos[key]);
+  }
+  for (const key in stateInfos){
+    
+    statesID.push(stateInfos[key]);
   }
   $.ajax({
     url: "http://localhost:5001/api/v1/places_search",
     type: 'POST',
     contentType: 'application/json',
-    data: JSON.stringify({ 'amenities': amenitiesID }),
+    data: JSON.stringify({ 'amenities': amenitiesID,  'states': statesID, 'cities': citiesID}),
     success: function(response){
-      console.log(response)
       $("section.places").empty()
       for (const place of response){
         $("section.places").append(`
@@ -104,3 +114,39 @@ $('button').click(function(){
     }
   }); 
 });
+
+
+$('.locations input[type="checkbox"]').change(function(){
+  const id = $(this).attr('data-id');
+  const name = $(this).attr('data-name');
+  if ($(this).is(":checked")){
+    if ($(this).attr('elem-type') === "state" ){
+      stateInfos[name] = id;
+    } else {
+      cityInfos[name] = id;
+    }
+  } else {
+    if ($(this).attr('elem-type') === "state" ){
+      delete stateInfos[name];
+    } else {
+      delete cityInfos[name];
+    }
+  }
+  $(".locations h4").text('');
+  keys = Object.keys(cityInfos)
+  for (key in keys){
+    if (key != keys.length - 1){
+      $(".locations h4").append(keys[key] + ", ")
+    } else {
+      $(".locations h4").append(keys[key] + " ")
+    }
+  }
+  keys = Object.keys(stateInfos)
+  for (key in keys){
+    if (key != keys.length - 1){
+      $(".locations h4").append(keys[key] + ", ")
+    } else {
+      $(".locations h4").append(keys[key] + " ")
+    }
+  }});
+
